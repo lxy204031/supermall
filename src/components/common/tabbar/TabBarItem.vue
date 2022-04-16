@@ -17,7 +17,7 @@ export default {
     path: String,
     activeColor: {
       type: String,
-      default: 'deeppink'
+      default: 'var(--color-tint)'
     }
   },
   data() {
