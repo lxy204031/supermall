@@ -43,14 +43,16 @@
 <!--};-->
 <!--</script>-->
 <template>
-  <swiper v-if="banners.length > 1" :options="swiperOpt">
-    <swiper-slide v-for="(item, index) in banners" :key="index">
-      <a :href="item.link">
-        <img :src="item.image">
-      </a>
-    </swiper-slide>
-    <div class="swiper-pagination" slot="pagination"></div>
-  </swiper>
+  <div class="mySwiper">
+    <swiper v-if="banners.length > 1" :options="swiperOpt">
+      <swiper-slide v-for="(item, index) in banners" :key="index">
+        <a :href="item.link">
+          <img :src="item.image">
+        </a>
+      </swiper-slide>
+      <div class="swiper-pagination" slot="pagination"></div>
+    </swiper>
+  </div>
 </template>
 
 <script>
