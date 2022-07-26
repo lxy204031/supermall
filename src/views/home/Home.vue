@@ -3,11 +3,12 @@
     <nav-bar class="home-nav">
       <template v-slot:center>购物街</template>
     </nav-bar>
-    <home-swiper :banners="banners"/>
-    <home-recommend-view :recommends="recommends"/>
-    <feature-view/>
-    <tab-control class="tab-control" :titles="titles"/>
-    <ul>
+    <home-swiper :banners="banners" />
+    <home-recommend-view :recommends="recommends" />
+    <feature-view />
+    <tab-control class="tab-control" :titles="titles" />
+    <goods-list/>
+    <!-- <ul>
       <li>列表1</li>
       <li>列表2</li>
       <li>列表3</li>
@@ -108,73 +109,96 @@
       <li>列表98</li>
       <li>列表99</li>
       <li>列表100</li>
-    </ul>
+    </ul> -->
   </div>
 </template>
 
 <script>
-  // 公共组件
-  import NavBar from "@/components/common/navbar/NavBar";
-  import TabControl from "@/components/content/TabControl";
+// 公共组件
+import NavBar from "@/components/common/navbar/NavBar";
+import TabControl from "@/components/content/tabControl/TabControl.vue";
 
-  // 首页组件
-  import HomeSwiper from "@/views/home/childComps/HomeSwiper";
-  import HomeRecommendView from "@/views/home/childComps/HomeRecommendView";
-  import featureView from "@/views/home/childComps/FeatureView";
+// 首页组件
+import HomeSwiper from "@/views/home/childComps/HomeSwiper";
+import HomeRecommendView from "@/views/home/childComps/HomeRecommendView";
+import featureView from "@/views/home/childComps/FeatureView";
+import GoodsList from "@/components/content/goods/GoodsList.vue";
 
-  // 导入的方法
-  import {getHomeMultidata} from "@/network/home";
+// 导入的方法
+import { getHomeMultidata, getHomeGoods } from "@/network/home";
 
-  export default {
-    name: "Home",
-    components: {
-      NavBar,
-      HomeSwiper,
-      HomeRecommendView,
-      featureView,
-      TabControl
-    },
-    data() {
-      return {
-        banners: [],
-        recommends: [],
-        titles: ['流行', '新款', '精选']
-      }
-    },
-    created() {
-      // 网络请求使用封装的函数
-      getHomeMultidata().then(res => {
+export default {
+  name: "Home",
+  components: {
+    NavBar,
+    HomeSwiper,
+    HomeRecommendView,
+    featureView,
+    TabControl,
+    GoodsList,
+  },
+  data() {
+    return {
+      banners: [],
+      recommends: [],
+      titles: ["流行", "新款", "精选"],
+      goods: {
+        pop: { page: 0, list: [] },
+        new: { page: 0, list: [] },
+        sell: { page: 0, list: [] },
+      },
+    };
+  },
+  created() {
+    // 网络请求使用封装的函数
+    this.getHomeMultidata();
+    this.getHomeGoods("pop");
+    this.getHomeGoods("new");
+    this.getHomeGoods("sell");
+  },
+  methods: {
+    getHomeMultidata() {
+      getHomeMultidata().then((res) => {
         // this.result = res;
         console.log(res.data);
-        this.banners = res.data.banner.list
-        this.recommends = res.data.recommend.list
-      })
-    }
-  }
+        this.banners = res.data.banner.list;
+        this.recommends = res.data.recommend.list;
+      });
+    },
+    getHomeGoods(type) {
+      const page = this.goods[type].page + 1;
+      getHomeGoods(type, page).then((res) => {
+        console.log(res.data.list);
+        this.goods[type].list.push(...res.data.list);
+        this.goods[type].page += 1
+      });
+    },
+  },
+};
 </script>
 
 <style scoped>
-  .home-nav {
-    background-color: var(--color-tint);
-    color: white;
-    font-weight: 700;
+.home-nav {
+  background-color: var(--color-tint);
+  color: white;
+  font-weight: 700;
 
-    /*导航固定在顶端*/
-    position: fixed;
-    left: 0;
-    right: 0;
-    top: 0;
-    /*z-index 属性设置元素的堆叠顺序。
+  /*导航固定在顶端*/
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  /*z-index 属性设置元素的堆叠顺序。
     拥有更高堆叠顺序的元素总是会处于堆叠顺序较低的元素的前面。*/
-    z-index: 2;
-  }
-  #home {
-    padding-top: 44px;
-  }
+  z-index: 2;
+}
+#home {
+  padding-top: 44px;
+}
 
-  /*不是每次使用这个组件都需要吸顶效果，所以不在组件里写样式*/
-  .tab-control {
-    position: sticky;
-    top: 44px
-  }
+/*不是每次使用这个组件都需要吸顶效果，所以不在组件里写样式*/
+.tab-control {
+  position: sticky;
+  top: 44px;
+}
 </style>
