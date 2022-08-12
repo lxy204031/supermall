@@ -8,7 +8,7 @@
       ref="scroll"
       :probeType="3"
       @positionChange="isShowBackTop"
-      @pullUp="pullUp"
+      @pullUp="loadMore"
     >
       <home-swiper :banners="banners" />
       <home-recommend-view :recommends="recommends" />
@@ -69,6 +69,17 @@ export default {
     this.getHomeGoods("new");
     this.getHomeGoods("sell");
   },
+  mounted() {
+    // 这里不加括号，加了括号得到是方法的返回值而不是方法
+    const refresh = this.debounce(this.$refs.scroll.refresh) 
+    this.$bus.$on("itemImageLoad", () => {
+      // refresh非常频繁，进行防抖处理
+      refresh();
+    });
+  },
+  beforeDestroy() {
+    this.$bus.$off("itemImageLoad");
+  },
   computed: {
     showGoods() {
       return this.goods[this.type].list;
@@ -78,6 +89,18 @@ export default {
     /**
      * 事件监听相关方法
      */
+    debounce(func, delay) {
+      let timer = null;
+      return function(...args) {
+        if (timer) {
+          clearTimeout(timer);
+        }
+        timer = setTimeout(() => {
+          func.apply(this, args);
+        }, delay);
+      };
+    },
+
     tabClick(index) {
       console.log(index);
       switch (index) {
@@ -104,8 +127,8 @@ export default {
       // }
       this.showBackTop = position.y < 0;
     },
-    pullUp() {
-      console.log("下拉加载");
+    loadMore() {
+      // console.log("下拉加载");
       this.getHomeGoods(this.type);
     },
 
@@ -126,6 +149,8 @@ export default {
         // console.log(res.data.list);
         this.goods[type].list.push(...res.data.list);
         this.goods[type].page += 1;
+
+        this.$refs.scroll.finishPullUp();
       });
     }
   }

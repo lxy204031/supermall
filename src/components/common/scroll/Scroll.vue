@@ -40,16 +40,21 @@ export default {
 
     // 3.监听上拉
     this.scroll.on("pullingUp", () => {
-      //   console.log("下拉加载");
+      console.log("下拉加载");
       this.$emit("pullUp");
-      setTimeout(() => {
-        this.scroll.finishPullUp();
-      }, 500);
     });
   },
   methods: {
     scrollTo(x, y, time = 500) {
-      this.scroll.scrollTo(x, y, time);
+      this.scroll && this.scroll.scrollTo(x, y, time);
+      // this.scroll?.scrollTo(x, y, time)
+    },
+    finishPullUp() {
+      this.scroll && this.scroll.finishPullUp();
+    },
+    refresh() {
+      this.scroll && this.scroll.refresh()
+      console.log("-------");
     }
   }
 };
