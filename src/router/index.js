@@ -38,7 +38,7 @@ const router = new VueRouter({
 })
 // 重复点击，跳转到同一路由会报错，但不影响功能使用
 const originalPush = VueRouter.prototype.push
-VueRouter.prototype.push = function push(location) {
-  return originalPush.call(this, location).catch(err => err)
+VueRouter.prototype.push = function push(to) {
+  return originalPush.call(this, to).catch(err => err)
 }
 export default router

@@ -47,7 +47,7 @@
     <swiper v-if="banners.length > 1" :options="swiperOpt">
       <swiper-slide v-for="(item, index) in banners" :key="index">
         <a :href="item.link">
-          <img :src="item.image">
+          <img :src="item.image" @load="imgLoad">
         </a>
       </swiper-slide>
       <div class="swiper-pagination" slot="pagination"></div>
@@ -95,7 +95,8 @@ export default {
           el: ".swiper-pagination",
           clickable: true
         }
-      }
+      },
+      isLoad: false
     }
   },
   // computed: {
@@ -104,6 +105,14 @@ export default {
   //   }
   // },
   mounted() {
+  },
+  methods: {
+    imgLoad() {
+      if (!this.isLoad) {
+        this.$bus.$emit('swiperImgLoad')
+        this.isLoad = true
+      }
+    }
   }
 }
 </script>

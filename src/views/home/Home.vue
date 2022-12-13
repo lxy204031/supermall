@@ -3,20 +3,32 @@
     <nav-bar class="home-nav">
       <template v-slot:center>购物街</template>
     </nav-bar>
+    <tab-control
+        :titles="titles"
+        @tabClick="tabClick"
+        ref="tabControl1"
+        class="tab-control"
+        v-show="isTabFixed"
+      />
     <scroll
       class="content"
       ref="scroll"
       :probeType="3"
-      @positionChange="isShowBackTop"
-      @pullUp="loadMore"
+      :pullUpLoad="true"
+      @positionChange="contentScroll"
+      @pullingUp="loadMore"
     >
       <home-swiper :banners="banners" />
       <home-recommend-view :recommends="recommends" />
-      <feature-view />
-      <tab-control class="tab-control" :titles="titles" @tabClick="tabClick" />
+      <feature-view @featureViewLoad="featureViewLoad" />
+      <tab-control
+        :titles="titles"
+        @tabClick="tabClick"
+        ref="tabControl2"
+      />
       <goods-list :goods="showGoods" />
     </scroll>
-    <back-top @click.native="clickBack" v-show="showBackTop" />
+    <back-top @click.native="clickBack" v-show="isBackTop" />
   </div>
 </template>
 
@@ -35,6 +47,7 @@ import featureView from "@/views/home/childComps/FeatureView";
 
 // 导入的方法
 import { getHomeMultidata, getHomeGoods } from "@/network/home";
+import { debounce } from "@/common/utils";
 
 export default {
   name: "Home",
@@ -59,7 +72,9 @@ export default {
         sell: { page: 0, list: [] }
       },
       type: "pop",
-      showBackTop: false
+      isBackTop: false,
+      tabOffsetTop: 0,
+      isTabFixed: false
     };
   },
   created() {
@@ -70,15 +85,29 @@ export default {
     this.getHomeGoods("sell");
   },
   mounted() {
+    // 图片加载完成的事件监听
     // 这里不加括号，加了括号得到是方法的返回值而不是方法
-    const refresh = this.debounce(this.$refs.scroll.refresh) 
+    const refresh = debounce(this.$refs.scroll.refresh, 300);
     this.$bus.$on("itemImageLoad", () => {
       // refresh非常频繁，进行防抖处理
       refresh();
     });
+
+    // 获取tabControl
+    // 所有的组件都有一个属性$el:用于获取组件中的元素
+    this.$bus.$on("swiperImgLoad", () => {
+      console.log("swiperImgLoad");
+
+      this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
+      console.log(this.tabOffsetTop);
+    });
   },
   beforeDestroy() {
     this.$bus.$off("itemImageLoad");
+    this.$bus.$off("swiperImgLoad"); 
+  },
+  destroyed() {
+    console.log('Home Destroyed')
   },
   computed: {
     showGoods() {
@@ -89,18 +118,6 @@ export default {
     /**
      * 事件监听相关方法
      */
-    debounce(func, delay) {
-      let timer = null;
-      return function(...args) {
-        if (timer) {
-          clearTimeout(timer);
-        }
-        timer = setTimeout(() => {
-          func.apply(this, args);
-        }, delay);
-      };
-    },
-
     tabClick(index) {
       console.log(index);
       switch (index) {
@@ -114,22 +131,29 @@ export default {
           this.type = "sell";
           break;
       }
+      this.$refs.tabControl1.currentIndex = index
+      this.$refs.tabControl2.currentIndex = index
+      // this.$refs.scroll.scrollTo(0, -this.tabOffsetTop)
     },
+    // 返回顶部
     clickBack() {
       // this.$refs.scroll.scroll.scrollTo(0, 0, 500)
       this.$refs.scroll.scrollTo(0, 0);
     },
-    isShowBackTop(position) {
-      // if (position.y < 0) {
-      //   this.showBackTop = true
-      // } else {
-      //   this.showBackTop = false
-      // }
-      this.showBackTop = position.y < 0;
+    // 监听滚动
+    contentScroll(position) {
+      // 判断是否显示backTop
+      this.isBackTop = position.y < 0;
+
+      // 决定tabControl是否吸顶
+      this.isTabFixed = -position.y > this.tabOffsetTop;
     },
     loadMore() {
-      // console.log("下拉加载");
+      console.log("加载更多");
       this.getHomeGoods(this.type);
+    },
+    featureViewLoad() {
+      console.log("featureViewLoad");
     },
 
     /**
@@ -149,7 +173,7 @@ export default {
         // console.log(res.data.list);
         this.goods[type].list.push(...res.data.list);
         this.goods[type].page += 1;
-
+        // 下拉到底部只能监听一次，因此每次下拉后都要调用finishPullUp方法来结束一次下拉操作
         this.$refs.scroll.finishPullUp();
       });
     }
@@ -164,14 +188,14 @@ export default {
   color: white;
   font-weight: 700;
 
-  /*导航固定在顶端*/
-  position: fixed;
+  /*导航固定在顶端（使用浏览器原生滚动时）*/
+  /* position: fixed;
   left: 0;
   right: 0;
-  top: 0;
-  /*z-index 属性设置元素的堆叠顺序。
+  top: 0; */
+  /*z-index 属性设置元素的堆叠顺序，只对定位了的元素（position）起效果。
     拥有更高堆叠顺序的元素总是会处于堆叠顺序较低的元素的前面。*/
-  z-index: 9;
+  /* z-index: 9; */
 }
 #home {
   /* padding-top: 44px; */
@@ -182,11 +206,11 @@ export default {
 
 /*不是每次使用这个组件都需要吸顶效果，所以不在组件里写样式*/
 /* (注：原生滚动可以吸顶，使用better-scroll后，无效) */
-.tab-control {
+/* .tab-control {
   position: sticky;
   top: 44px;
   z-index: 9;
-}
+} */
 
 /* 确定中间滚动部分高度，方法一： */
 /* .content {
@@ -204,5 +228,9 @@ export default {
   bottom: 49px;
   left: 0;
   right: 0;
+}
+.tab-control {
+  position: relative;
+  z-index: 9;
 }
 </style>

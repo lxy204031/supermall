@@ -5,24 +5,23 @@
 </template>
 
 <script>
-  import MySwiper from "@/components/common/swiper/MySwiper";
+import MySwiper from "@/components/common/swiper/MySwiper";
 
-  export default {
-    name: "HomeSwiper",
-    components: {
-      MySwiper
-    },
-    props: {
-      banners: {
-        type: Array,
-        default() {
-          return []
-        }
+export default {
+  name: "HomeSwiper",
+  components: {
+    MySwiper
+  },
+  props: {
+    banners: {
+      type: Array,
+      default() {
+        return [];
       }
     }
   }
+};
 </script>
 
 <style scoped>
-
 </style>

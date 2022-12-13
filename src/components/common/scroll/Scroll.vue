@@ -20,6 +20,10 @@ export default {
     probeType: {
       type: Number,
       default: 0
+    },
+    pullUpLoad: {
+      type: Boolean,
+      default: true
     }
   },
   mounted() {
@@ -29,20 +33,24 @@ export default {
       // 内部点击事件默认不可用
       click: true,
       probeType: this.probeType,
-      pullUpLoad: true
+      pullUpLoad: this.pullUpLoad
     });
 
     // 2.监听滚动的位置
-    this.scroll.on("scroll", position => {
-      // console.log(position)
-      this.$emit("positionChange", position);
-    });
+    if (this.probeType === 2 || this.probeType === 3) {
+      this.scroll.on("scroll", position => {
+        // console.log(position)
+        this.$emit("positionChange", position);
+      });
+    }
 
-    // 3.监听上拉
-    this.scroll.on("pullingUp", () => {
-      console.log("下拉加载");
-      this.$emit("pullUp");
-    });
+    // 3.监听scroll滚动到底部
+    if (this.pullUpLoad) {
+      this.scroll.on("pullingUp", () => {
+        console.log("下拉到底部");
+        this.$emit("pullingUp");
+      });
+    }
   },
   methods: {
     scrollTo(x, y, time = 500) {
@@ -53,7 +61,7 @@ export default {
       this.scroll && this.scroll.finishPullUp();
     },
     refresh() {
-      this.scroll && this.scroll.refresh()
+      this.scroll && this.scroll.refresh();
       console.log("-------");
     }
   }
