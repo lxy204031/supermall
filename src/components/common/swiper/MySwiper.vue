@@ -46,9 +46,7 @@
   <div class="mySwiper">
     <swiper v-if="banners.length > 1" :options="swiperOpt">
       <swiper-slide v-for="(item, index) in banners" :key="index">
-        <a :href="item.link">
-          <img :src="item.image" @load="imgLoad">
-        </a>
+        <img :src="item.image || item" @load="imgLoad" />
       </swiper-slide>
       <div class="swiper-pagination" slot="pagination"></div>
     </swiper>
@@ -56,65 +54,63 @@
 </template>
 
 <script>
-import {Swiper, SwiperSlide} from 'vue-awesome-swiper'
+import { Swiper, SwiperSlide } from "vue-awesome-swiper";
 
 // 这两步很重要，分页和轮播，还包括一些其他的
-import Swiper2, {Pagination, Autoplay} from 'swiper';
+import Swiper2, { Pagination, Autoplay } from "swiper";
 Swiper2.use([Pagination, Autoplay]);
 
-
 // import swiper module styles
-import 'swiper/swiper.min.css'
-import 'swiper/swiper-bundle.css'  // 影响小圆点
+import "swiper/swiper.min.css";
+import "swiper/swiper-bundle.css"; // 影响小圆点
 
 export default {
   components: {
     Swiper,
-    SwiperSlide
+    SwiperSlide,
   },
   props: {
     banners: {
       type: Array,
       default() {
-        return []
-      }
-    }
+        return [];
+      },
+    },
   },
   data() {
     return {
       swiperOpt: {
         loop: true,
-        observer:true,//修改swiper本身或子元素时，自动初始化swiper
-        observeParents:true,//修改swiper的父元素时，自动初始化swiper
+        observer: true, //修改swiper本身或子元素时，自动初始化swiper
+        observeParents: true, //修改swiper的父元素时，自动初始化swiper
         autoplay: {
           delay: 2000,
-          disableOnInteraction: false
+          disableOnInteraction: false,
         },
         // 显示分页
         pagination: {
           el: ".swiper-pagination",
-          clickable: true
-        }
+          clickable: true,
+        },
       },
-      isLoad: false
-    }
+      isLoad: false,
+    };
   },
   // computed: {
   //   swiper() {
   //     return this.$refs.mySwiper;
   //   }
   // },
-  mounted() {
-  },
+  mounted() {},
   methods: {
     imgLoad() {
       if (!this.isLoad) {
-        this.$bus.$emit('swiperImgLoad')
-        this.isLoad = true
+        this.$bus.$emit("swiperImgLoad");
+        this.isLoad = true;
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 <style scoped>
 .swiper-slide img {
@@ -123,7 +119,7 @@ export default {
 /*pagination默认的小圆点颜色蓝色怎么也修改不了，css覆写也没用，
 尝试了一下sass的穿透覆写css
 要注意头部要写 /deep/关键字*/
-/deep/ .swiper-pagination-bullet-active{
+/deep/ .swiper-pagination-bullet-active {
   background: deeppink;
 }
 </style>

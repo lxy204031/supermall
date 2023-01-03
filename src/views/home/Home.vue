@@ -74,7 +74,8 @@ export default {
       type: "pop",
       isBackTop: false,
       tabOffsetTop: 0,
-      isTabFixed: false
+      isTabFixed: false,
+      saveY: 0,
     };
   },
   created() {
@@ -99,12 +100,21 @@ export default {
       console.log("swiperImgLoad");
 
       this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
-      console.log(this.tabOffsetTop);
+      console.log('//////', this.tabOffsetTop);
     });
   },
   beforeDestroy() {
     this.$bus.$off("itemImageLoad");
     this.$bus.$off("swiperImgLoad"); 
+  },
+  activated() {
+    // 滚动前先刷新一下
+    this.$refs.scroll.refresh()
+    this.$refs.scroll.scrollTo(0, this.saveY, 0)
+  },
+  deactivated() {
+    this.saveY = this.$refs.scroll.getScrollY()
+    console.log(this.saveY);
   },
   destroyed() {
     console.log('Home Destroyed')
