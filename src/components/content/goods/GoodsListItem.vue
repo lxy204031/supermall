@@ -1,5 +1,5 @@
 <template>
-  <div class="goods-item" @click="itemClick"> 
+  <div class="goods-item" @click="itemClick">
     <img :src="showImage" alt @load="imageLoad" />
     <div class="goods-info">
       <p>{{ goodsItem.title }}</p>
@@ -22,17 +22,27 @@ export default {
   },
   computed: {
     showImage() {
-      return this.goodsItem.image || this.goodsItem.show.img
-    }
+      return this.goodsItem.image || this.goodsItem.show.img;
+    },
   },
   methods: {
     imageLoad() {
+      // 这个组件在多个地方使用，在detail中使用时发射的全局事件，
+      // home中也会监听并回调一些函数，这是不对的
+      // 解决方法有两种：
+      // 1. 通过路由控制发射不同的全局事件，不同路由监听不同的全局事件：
+      // if (this.$route.path.indexOf("/home") !== -1) {
+      //   this.$bus.$emit("homeItemImageLoad");
+      // } else if (this.$route.path.indexOf("/detail") !== -1) {
+      //   this.$bus.$emit("detailItemImageLoad");
+      // }
+      // 2. 只发送一个全局事件，但是不同组件使用时要及时取消监听
       this.$bus.$emit("itemImageLoad");
     },
     itemClick() {
       console.log("跳转详情页");
-      this.$router.push('/detail/' + this.goodsItem.iid)
-    }
+      this.$router.push("/detail/" + this.goodsItem.iid);
+    },
   },
 };
 </script>

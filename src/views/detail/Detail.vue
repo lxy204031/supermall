@@ -25,9 +25,11 @@ import DetailCommentInfo from "./childComps/DetailCommentInfo.vue";
 import Scroll from "@/components/common/scroll/Scroll.vue";
 import GoodsList from "@/components/content/goods/GoodsList.vue";
 import { getDetail, getRecommend, Goods, Shop, GoodsParams } from "@/network/detail";
+import { itemListenerMixin } from "@/common/mixin"
 
 export default {
   name: "Detail",
+  mixins: [itemListenerMixin],
   data() {
     return {
       iid: "", // 商品id
@@ -81,6 +83,11 @@ export default {
       this.recommend = res.data.list;
     });
   },
+  mounted() {
+  },
+  destroyed() {
+    this.$bus.$off('itemImageLoad', this.itemImgListener)
+  }
 };
 </script>
 

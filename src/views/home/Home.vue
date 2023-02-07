@@ -47,10 +47,11 @@ import featureView from "@/views/home/childComps/FeatureView";
 
 // 导入的方法
 import { getHomeMultidata, getHomeGoods } from "@/network/home";
-import { debounce } from "@/common/utils";
+import { itemListenerMixin } from "@/common/mixin"
 
 export default {
   name: "Home",
+  mixins: [itemListenerMixin],
   components: {
     NavBar,
     HomeSwiper,
@@ -86,13 +87,15 @@ export default {
     this.getHomeGoods("sell");
   },
   mounted() {
+    // 转移到mixin里面了
     // 图片加载完成的事件监听
     // 这里不加括号，加了括号得到是方法的返回值而不是方法
-    const refresh = debounce(this.$refs.scroll.refresh, 300);
-    this.$bus.$on("itemImageLoad", () => {
-      // refresh非常频繁，进行防抖处理
-      refresh();
-    });
+    // const refresh = debounce(this.$refs.scroll.refresh, 300);
+    // this.itemImgListener = () => {
+    //   // refresh非常频繁，进行防抖处理
+    //   refresh();
+    // }
+    // this.$bus.$on("itemImageLoad", this.itemImgListener);
 
     // 获取tabControl
     // 所有的组件都有一个属性$el:用于获取组件中的元素
@@ -113,8 +116,11 @@ export default {
     this.$refs.scroll.scrollTo(0, this.saveY, 0)
   },
   deactivated() {
+    // 1. 保存Y值
     this.saveY = this.$refs.scroll.getScrollY()
     console.log(this.saveY);
+    // 2. 取消全局监听事件
+    this.$bus.$off('itemImageLoad', this.itemImgListener)
   },
   destroyed() {
     console.log('Home Destroyed')
