@@ -11,7 +11,8 @@
       <p>推荐</p>
       <goods-list ref="recommend" :goods="recommend" />
     </scroll>
-    <detail-bottom-bar />
+    <detail-bottom-bar @addToCart="addToCart"/>
+    <back-top @click.native="clickBack" v-show="isBackTop" />
   </div>
 </template>
 
@@ -27,11 +28,11 @@ import Scroll from "@/components/common/scroll/Scroll.vue";
 import GoodsList from "@/components/content/goods/GoodsList.vue";
 import DetailBottomBar from "./childComps/DetailBottomBar.vue"
 import { getDetail, getRecommend, Goods, Shop, GoodsParams } from "@/network/detail";
-import { itemListenerMixin } from "@/common/mixin";
+import { itemListenerMixin, backTopMixin } from "@/common/mixin";
 
 export default {
   name: "Detail",
-  mixins: [itemListenerMixin],
+  mixins: [itemListenerMixin, backTopMixin],
   data() {
     return {
       iid: "", // 商品id
@@ -114,7 +115,24 @@ export default {
           this.$refs.navBar.currentIndex = i;
         }
       }
+
+      // 判断是否显示backTop
+      this.isBackTop = position.y < 0;
     },
+
+    addToCart() {
+      // 1,获取购物车需要展示的信息
+      const product = {}
+      product.image = this.topImages[0]
+      product.title = this.goods.title
+      product.desc = this.goods.desc
+      product.price = this.goods.realPrice
+      product.iid = this.iid
+
+      // 2.将商品添加到购物车里
+      // this.$store.cartList.push(product) 不能这样写
+      this.$store.dispatch('addCart', product)
+    }
   },
   created() {
     // 注意：由于使用了keep-alive，created只触发一次，

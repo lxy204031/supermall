@@ -34,7 +34,6 @@ import NavBar from "@/components/common/navbar/NavBar";
 import TabControl from "@/components/content/tabControl/TabControl.vue";
 import GoodsList from "@/components/content/goods/GoodsList.vue";
 import Scroll from "@/components/common/scroll/Scroll.vue";
-import BackTop from "@/components/content/backTop/BackTop.vue";
 
 // 首页组件
 import HomeSwiper from "@/views/home/childComps/HomeSwiper";
@@ -43,11 +42,11 @@ import featureView from "@/views/home/childComps/FeatureView";
 
 // 导入的方法
 import { getHomeMultidata, getHomeGoods } from "@/network/home";
-import { itemListenerMixin } from "@/common/mixin";
+import { itemListenerMixin, backTopMixin } from "@/common/mixin";
 
 export default {
   name: "Home",
-  mixins: [itemListenerMixin],
+  mixins: [itemListenerMixin, backTopMixin],
   components: {
     NavBar,
     HomeSwiper,
@@ -56,7 +55,6 @@ export default {
     TabControl,
     GoodsList,
     Scroll,
-    BackTop,
   },
   data() {
     return {
@@ -69,7 +67,6 @@ export default {
         sell: { page: 0, list: [] },
       },
       type: "pop",
-      isBackTop: false,
       tabOffsetTop: 0,
       isTabFixed: false,
       saveY: 0,
@@ -150,11 +147,6 @@ export default {
         this.$refs.tabControl2.currentIndex = index;
       }
       // this.$refs.scroll.scrollTo(0, -this.tabOffsetTop)
-    },
-    // 返回顶部
-    clickBack() {
-      // this.$refs.scroll.scroll.scrollTo(0, 0, 500)
-      this.$refs.scroll.scrollTo(0, 0);
     },
     // 监听滚动
     contentScroll(position) {
