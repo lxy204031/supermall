@@ -4,12 +4,12 @@
       <template v-slot:center>购物街</template>
     </nav-bar>
     <tab-control
-        :titles="titles"
-        @tabClick="tabClick"
-        ref="tabControl1"
-        class="tab-control"
-        v-show="isTabFixed"
-      />
+      :titles="titles"
+      @tabClick="tabClick"
+      ref="tabControl1"
+      class="tab-control"
+      v-show="isTabFixed"
+    />
     <scroll
       class="content"
       ref="scroll"
@@ -21,11 +21,7 @@
       <home-swiper :banners="banners" />
       <home-recommend-view :recommends="recommends" />
       <feature-view @featureViewLoad="featureViewLoad" />
-      <tab-control
-        :titles="titles"
-        @tabClick="tabClick"
-        ref="tabControl2"
-      />
+      <tab-control :titles="titles" @tabClick="tabClick" ref="tabControl2" />
       <goods-list :goods="showGoods" />
     </scroll>
     <back-top @click.native="clickBack" v-show="isBackTop" />
@@ -47,7 +43,7 @@ import featureView from "@/views/home/childComps/FeatureView";
 
 // 导入的方法
 import { getHomeMultidata, getHomeGoods } from "@/network/home";
-import { itemListenerMixin } from "@/common/mixin"
+import { itemListenerMixin } from "@/common/mixin";
 
 export default {
   name: "Home",
@@ -60,7 +56,7 @@ export default {
     TabControl,
     GoodsList,
     Scroll,
-    BackTop
+    BackTop,
   },
   data() {
     return {
@@ -70,7 +66,7 @@ export default {
       goods: {
         pop: { page: 0, list: [] },
         new: { page: 0, list: [] },
-        sell: { page: 0, list: [] }
+        sell: { page: 0, list: [] },
       },
       type: "pop",
       isBackTop: false,
@@ -103,32 +99,32 @@ export default {
       console.log("swiperImgLoad");
 
       this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
-      console.log('//////', this.tabOffsetTop);
+      console.log("//////", this.tabOffsetTop);
     });
   },
   beforeDestroy() {
     this.$bus.$off("itemImageLoad");
-    this.$bus.$off("swiperImgLoad"); 
+    this.$bus.$off("swiperImgLoad");
   },
   activated() {
     // 滚动前先刷新一下
-    this.$refs.scroll.refresh()
-    this.$refs.scroll.scrollTo(0, this.saveY, 0)
+    this.$refs.scroll.refresh();
+    this.$refs.scroll.scrollTo(0, this.saveY, 0);
   },
   deactivated() {
     // 1. 保存Y值
-    this.saveY = this.$refs.scroll.getScrollY()
+    this.saveY = this.$refs.scroll.getScrollY();
     console.log(this.saveY);
     // 2. 取消全局监听事件
-    this.$bus.$off('itemImageLoad', this.itemImgListener)
+    this.$bus.$off("itemImageLoad", this.itemImgListener);
   },
   destroyed() {
-    console.log('Home Destroyed')
+    console.log("Home Destroyed");
   },
   computed: {
     showGoods() {
       return this.goods[this.type].list;
-    }
+    },
   },
   methods: {
     /**
@@ -147,8 +143,12 @@ export default {
           this.type = "sell";
           break;
       }
-      this.$refs.tabControl1.currentIndex = index
-      this.$refs.tabControl2.currentIndex = index
+
+      // 两个tabControl保持一致
+      if (this.$refs.tabControl1 !== undefined) {
+        this.$refs.tabControl1.currentIndex = index;
+        this.$refs.tabControl2.currentIndex = index;
+      }
       // this.$refs.scroll.scrollTo(0, -this.tabOffsetTop)
     },
     // 返回顶部
@@ -176,7 +176,7 @@ export default {
      * 网络请求相关方法
      */
     getHomeMultidata() {
-      getHomeMultidata().then(res => {
+      getHomeMultidata().then((res) => {
         // this.result = res;
         // console.log(res.data);
         this.banners = res.data.banner.list;
@@ -185,15 +185,15 @@ export default {
     },
     getHomeGoods(type) {
       const page = this.goods[type].page + 1;
-      getHomeGoods(type, page).then(res => {
+      getHomeGoods(type, page).then((res) => {
         // console.log(res.data.list);
         this.goods[type].list.push(...res.data.list);
         this.goods[type].page += 1;
         // 下拉到底部只能监听一次，因此每次下拉后都要调用finishPullUp方法来结束一次下拉操作
         this.$refs.scroll.finishPullUp();
       });
-    }
-  }
+    },
+  },
 };
 </script>
 

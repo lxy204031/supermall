@@ -2,7 +2,7 @@
  * 存放一些公用的方法
  */
 
-export function debounce(func, delay) {
+export function debounce(func, delay=50) {
     let timer = null;
     return function (...args) {
         if (timer) {
