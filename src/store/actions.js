@@ -22,5 +22,9 @@ export default {
       // context.state.cartList.push(payload)
       context.commit(ADD_TO_CART, payload)
     }
+  },
+  handelCheck(context, payload) {
+    const index = context.state.cartList.findIndex(item => item.iid === payload)
+    context.commit("checkChange", index)
   }
 }
