@@ -1,5 +1,5 @@
 <template lang="">
-  <div :class="{checkBotton: true, active: value}" @click="onClick"> <img src="@/assets/img/cart/tick.svg" alt=""> </div>
+  <div :class="{checkBotton: true, active: value}" @click="onClick"> <img src="@/assets/img/cart/tick.svg" style="margin-top: 1px; color: transparent " alt=""> </div>
 </template>
 <script>
 export default {
@@ -17,9 +17,9 @@ export default {
 <style scoped>
 .checkBotton {
   border: 1px solid #ccc;
-  width: 18px;
-  height: 18px;
-  border-radius: 18px;
+  width: 20px;
+  height: 20px;
+  border-radius: 20px;
 }
 .active {
   background: var(--color-tint);
